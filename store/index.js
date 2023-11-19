@@ -1,12 +1,5 @@
-import {createStore} from 'redux'
+import {configureStore, createSlice} from '@reduxjs/toolkit'
 
-/*
-first implement and older way we may see in legacy systems
-*/
-
-/*
-create an initial state for the redux store
-*/
 const initialState = {
   movies: [
     {title: 'Fight Club', inBasket: false, liked: false},
@@ -17,33 +10,47 @@ const initialState = {
   likedMovies: []
 }
 
-/*
-create a reducer function which changes the state according to the actions
-*/
-function reducer( state = initialState, action ) {
-  switch(action.type) {
-    case 'ADD_MOVIE':
-      return { // we want to return a new object because items in the store are immutable
-        ...state, // take the initial state
-        movies: [...state.movies, action.payload] // add what we want to change
-      }
-    case 'ADD_TO_BASKET':
-      return { // we want to return a new object because items in the store are immutable
-        ...state, // take the initial state
-        movies: state.movies.map( movie => movie.title === action.payload ? {...movie, inBasket: !movie.inBasket } : movie),
-        basket: state.basket.includes(action.payload) ? state.basket.filter( movie => movie !== action.payload ) : [...state.basket, action.payload] // add what we want to change
-      }
-    case 'ADD_TO_LIKED_MOVIE':
-      return { // we want to return a new object because items in the store are immutable
-        ...state, // take the initial state
-        movies: state.movies.map( movie => movie.title === action.payload ? {...movie, liked: !movie.liked } : movie),
-        likedMovies: state.likedMovies.includes(action.payload) ? state.likedMovies.filter( movie => movie !== action.payload ) : [...state.likedMovies, action.payload] // add what we want to change
-      }
-    default: // if nothing changed return what we have
-      return state
-  }
-}
 
-const store = createStore(reducer); // create store and set reducer
+const movieSlice = createSlice({
+  name: 'movies',
+  initialState,
+  reducers: {
+    addMovie: (state, action) => {
+      state.movies.push(action.payload)
+    },
+    addToBasket: (state, action) => {
+      state.movies = state.movies.map( (movie) => {
+        if(movie.title === action.payload) {
+          return {...movie, inBasket: !movie.inBasket }
+        }
+        return movie
+      })
+      if(state.basket.includes(action.payload)) {
+        state.basket = state.basket.filter( movie => movie !== action.payload )
+      } else {
+        state.basket.push(action.payload)
+      }
+    },
+    addToLikedMovies: (state, action) => {
+      state.movies = state.movies.map( (movie) => {
+        if( movie.title === action.payload ) {
+          return { ...movie, liked: !movie.liked }
+        } else {
+          return movie
+        }
+      })
+      if(state.likedMovies.includes(action.payload)) {
+        state.likedMovies = state.likedMovies.filter( movie => movie !== action.payload )
+      } else {
+        state.likedMovies.push(action.payload)
+      }
+    }
+
+  }
+})
+
+const store = configureStore( { reducer: movieSlice.reducer } );
+
+export const { addMovie, addToBasket, addToLikedMovies } = movieSlice.actions
 
 export default store;

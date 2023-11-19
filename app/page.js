@@ -2,6 +2,7 @@
 import Image from 'next/image'
 import { useSelector, useDispatch } from 'react-redux'
 import { useState } from 'react'
+import { addMovie, addToBasket, addToLikedMovies } from '@/store'
 
 export default function Home() {
   const [movieTitle, setMovieTitle] = useState('')
@@ -17,25 +18,16 @@ export default function Home() {
       inBasket: false,
       liked: false
     }
-    dispatch({
-      type: 'ADD_MOVIE',
-      payload: newMovie
-    })
+    dispatch(addMovie(newMovie))
     setMovieTitle('')
   }
 
   function handleAddToBasket(title) {
-    dispatch({
-      type: 'ADD_TO_BASKET',
-      payload: title
-    })
+    dispatch(addToBasket(title))
   }
 
   function handleAddToLikedMovies(title) {
-    dispatch({
-      type: 'ADD_TO_LIKED_MOVIE',
-      payload: title
-    })
+    dispatch(addToLikedMovies(title))
   }
 
   return (
